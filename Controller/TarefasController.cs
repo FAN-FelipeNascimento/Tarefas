@@ -78,9 +78,9 @@ namespace Tarefas.Controller
                 await ObjContext.SaveChangesAsync();
                 return Created("v1/ListarTarefas", vTarefa);
             }
-            catch (System.Exception)
+            catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e);
             }
         }
 
@@ -95,7 +95,7 @@ namespace Tarefas.Controller
         [Route(template: "EditarTarefa/{id}")]
         public async Task<IActionResult> EditarTarefa(
             [FromServices] ClassDbContext ObjContext,
-            [FromBody] CriarNovaTarefa objEditar,
+            [FromBody] EditarTarefa objEditar,
             [FromRoute] int id
             )
         {
@@ -107,13 +107,14 @@ namespace Tarefas.Controller
             try
             {
                 vTarefa.Descricao = objEditar.DescricaoTarefa;
+                vTarefa.Status = objEditar.Status;
                 ObjContext.objTbTarefas.Update(vTarefa);
                 ObjContext.SaveChanges();
                 return Ok(vTarefa);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e);
             }
         }
 
@@ -130,8 +131,7 @@ namespace Tarefas.Controller
             [FromRoute] int id
             )
         {
-            //var vTarefa = await ObjContext.objTbTarefas.FirstOrDefaultAsync(x => x.IdTarefa == id);
-            var vTarefa = FiltraId(ObjContext, id);
+            var vTarefa = await ObjContext.objTbTarefas.FirstOrDefaultAsync(x => x.IdTarefa == id);
 
             try
             {
@@ -139,17 +139,10 @@ namespace Tarefas.Controller
                 await ObjContext.SaveChangesAsync();
                 return Ok("v1/ListarTarefas");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e);
             }
-
-        }
-
-        private static async MdTarefas FiltraId(ClassDbContext paramDbContext, int paramId) 
-        {
-            var objId = await paramDbContext.objTbTarefas.FirstOrDefaultAsync(x => x.IdTarefa == paramId);
-            return objId;
         }
     }
 }

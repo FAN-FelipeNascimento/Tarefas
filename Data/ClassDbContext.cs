@@ -13,6 +13,8 @@ namespace Tarefas.Data
         /// Representação da tabela Tarefas
         /// </summary>
         public DbSet<MdTarefas> objTbTarefas { get; set; }
+        
+        public DbSet<MdTipo> objTbTipo { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
