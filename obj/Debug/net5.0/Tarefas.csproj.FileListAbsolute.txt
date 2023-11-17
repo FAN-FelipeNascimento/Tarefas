@@ -7,6 +7,7 @@ C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Tarefas.runtimeconfig.dev.json
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Tarefas.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Tarefas.pdb
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Humanizer.dll
+C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.AspNetCore.JsonPatch.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.Data.Sqlite.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.DotNet.PlatformAbstractions.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.dll
@@ -15,10 +16,17 @@ C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.Desi
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.Relational.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.Sqlite.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.Extensions.DependencyModel.dll
+C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.Extensions.PlatformAbstractions.dll
+C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Microsoft.OpenApi.dll
+C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Newtonsoft.Json.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\SQLitePCLRaw.batteries_v2.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\SQLitePCLRaw.nativelibrary.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\SQLitePCLRaw.core.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\SQLitePCLRaw.provider.dynamic_cdecl.dll
+C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Swashbuckle.Swagger.dll
+C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\runtimes\alpine-x64\native\libe_sqlite3.so
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\runtimes\linux-arm\native\libe_sqlite3.so
 C:\Projetos\ProvaTCE\Tarefas\bin\Debug\net5.0\runtimes\linux-arm64\native\libe_sqlite3.so
@@ -37,6 +45,7 @@ C:\Projetos\ProvaTCE\Tarefas\obj\Debug\net5.0\Tarefas.GeneratedMSBuildEditorConf
 C:\Projetos\ProvaTCE\Tarefas\obj\Debug\net5.0\Tarefas.AssemblyInfoInputs.cache
 C:\Projetos\ProvaTCE\Tarefas\obj\Debug\net5.0\Tarefas.AssemblyInfo.cs
 C:\Projetos\ProvaTCE\Tarefas\obj\Debug\net5.0\Tarefas.csproj.CoreCompileInputs.cache
+C:\Projetos\ProvaTCE\Tarefas\obj\Debug\net5.0\Tarefas.MvcApplicationPartsAssemblyInfo.cs
 C:\Projetos\ProvaTCE\Tarefas\obj\Debug\net5.0\Tarefas.MvcApplicationPartsAssemblyInfo.cache
 C:\Projetos\ProvaTCE\Tarefas\obj\Debug\net5.0\scopedcss\bundle\Tarefas.styles.css
 C:\Projetos\ProvaTCE\Tarefas\obj\Debug\net5.0\staticwebassets\Tarefas.StaticWebAssets.Manifest.cache

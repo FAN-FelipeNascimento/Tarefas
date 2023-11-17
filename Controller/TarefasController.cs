@@ -1,10 +1,12 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Tarefas.Data;
 using Tarefas.ViewModel;
 using Tarefas.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
+using Tarefas.Interface;
 
 namespace Tarefas.Controller
 {
@@ -21,128 +23,95 @@ namespace Tarefas.Controller
     [Route(template: "v1")]  //controla versão e mantem integridade com a View
     public class TarefasController : ControllerBase
     {
-        /// <summary>
-        /// Lista todas as tarefas existentes na base
-        /// </summary>
-        /// <returns>ToListAsync permite retorno dos dados em uma lista</returns>
-        [HttpGet]
-        [Route(template: "ListarTarefas")] //define a url com a especificação do versionamento - ex: vi/ListaTarefas
-        public async Task<IActionResult> TodasAsTarefas([FromServices] ClassDbContext ObjContext)
+        private readonly ITarefas _tarefaRepositorio;
+
+        public TarefasController(ITarefas tarefaRepositorio)
         {
-            var varTarefas = await ObjContext.objTbTarefas.AsNoTracking().ToListAsync();
-            return Ok(varTarefas);
+            _tarefaRepositorio = tarefaRepositorio;
         }
 
         /// <summary>
-        /// Exibe Tarefa selecionado pelo Id 
-        /// (chave primaria na tabela de tarefas)
+        /// Lista todas as tarefas existentes na base
         /// </summary>
-        /// <param name="ObjContext">Objeto contexto para interação com a base de dados</param>
-        /// <param name="id">Id(identificação) exclusiva da tarefa a ser exibida</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(template: "ListarTarefas")] //define a url com a especificação do versionamento - ex: vi/ListaTarefas
+        public async Task<ActionResult<IEnumerable<MdTarefas>>> TodasAsTarefas()
+        {
+            return Ok(await _tarefaRepositorio.ListarTarefas());
+        }
+
+        /// <summary>
+        /// Exibe Tarefa selecionado pelo Id - (chave primaria na tabela de tarefas)
+        /// </summary>
+        /// <param name="ObjContext"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
         [Route(template: "SelecionarTarefa/{id}")]
-        public async Task<IActionResult> SelecionarTarefa(
-            [FromServices] ClassDbContext ObjContext,
-            [FromRoute] int id)
+        public async Task<IActionResult> SelecionarTarefa(int id)
         {
-            var varTarefa = await ObjContext.objTbTarefas.FirstOrDefaultAsync(x => x.IdTarefa == id);
-            return varTarefa == null ? NotFound() : Ok(varTarefa);      //Mensagem padrão informando que não encontrou o item ou exibe o item encontrado
+            var pTarefa = await _tarefaRepositorio.SelecionarTarefas(id);
+            if(pTarefa == null)
+            {
+                return NotFound("Tarefa não encontrada");
+            }
+            return Ok(pTarefa);
         }
 
         /// <summary>
         /// Permite criar uma nova tarefa
         /// </summary>
-        /// <param name="ObjContext">Objeto contexto para interação com a base de dados</param>
-        /// <param name="ObjCriar">Recebe a descrição da tarefa para gerar um novo registro</param>
+        /// <param name="pTarefa"></param>
         /// <returns></returns>
         [HttpPost]
         [Route(template: "CriarTarefa")]
-        public async Task<IActionResult> CriarTarefa(
-            [FromServices] ClassDbContext ObjContext,
-            [FromBody] CriarNovaTarefa ObjCriar)
+        public async Task<IActionResult> CriarTarefa(MdTarefas pTarefa)
         {
-            if (!ModelState.IsValid) { return BadRequest(); }   //Certifica-se que o campo Required é valido
-
-            //Instancia da model para preenchimento de dados que geram o novo registro de Tarefa na base
-            MdTarefas vTarefa = new()
+            _tarefaRepositorio.IncluirTarefa(pTarefa);
+            if (await _tarefaRepositorio.SaveAllAsync())
             {
-                Status = false,
-                Descricao = ObjCriar.DescricaoTarefa,
-                DtLogCriacao = System.DateTime.Now
-            };
-
-            try
-            {
-                await ObjContext.objTbTarefas.AddAsync(vTarefa);
-                await ObjContext.SaveChangesAsync();
-                return Created("v1/ListarTarefas", vTarefa);
+                return Ok("Nova tarefa criada com sucesso.");
             }
-            catch (Exception e)
-            {
-                return BadRequest(e);
-            }
+
+            return BadRequest("Ocorreu um erro ao salvar uma nova tarefa");
         }
 
         /// <summary>
         /// Permite editar a descrição das tarefas
         /// </summary>
-        /// <param name="ObjContext">Objeto contexto para interação com a base de dados</param>
-        /// <param name="objEditar">Permite modificar a descrição da tarefa</param>
-        /// <param name="id">Identificação da tarefa que será modificada</param>
+        /// <param name="pTarefa"></param>
         /// <returns></returns>
         [HttpPut]
         [Route(template: "EditarTarefa/{id}")]
-        public async Task<IActionResult> EditarTarefa(
-            [FromServices] ClassDbContext ObjContext,
-            [FromBody] EditarTarefa objEditar,
-            [FromRoute] int id
-            )
+        public async Task<IActionResult> EditarTarefa(MdTarefas pTarefa)
         {
-            if (!ModelState.IsValid) { return BadRequest(); }   //Certifica-se que o campo Required é valido
-
-            //Instancia da model para preenchimento de dados que geram o novo registro de Tarefa na base
-            MdTarefas vTarefa = await ObjContext.objTbTarefas.FirstOrDefaultAsync(x => x.IdTarefa == id);
-
-            try
+            _tarefaRepositorio.EditarTarefa(pTarefa);
+            if (await _tarefaRepositorio.SaveAllAsync())
             {
-                vTarefa.Descricao = objEditar.DescricaoTarefa;
-                vTarefa.Status = objEditar.Status;
-                ObjContext.objTbTarefas.Update(vTarefa);
-                ObjContext.SaveChanges();
-                return Ok(vTarefa);
+                return Ok("Tarefa alterada com sucesso.");
             }
-            catch (Exception e)
-            {
-                return BadRequest(e);
-            }
+
+            return BadRequest("Ocorreu um erro ao tentar alterar uma tarefa");
         }
 
         /// <summary>
         /// Permite excluir tarefas existentes
         /// </summary>
-        /// <param name="ObjContext">Objeto contexto para interação com a base de dados</param>
-        /// <param name="id">Identificação da tarefa que será excluida</param>
+        /// <param name="pTarefa"></param>
         /// <returns></returns>
         [HttpDelete]
         [Route(template: "ExcluirTarefa/{id}")]
-        public async Task<IActionResult> ExcluirTarefa(
-            [FromServices] ClassDbContext ObjContext,
-            [FromRoute] int id
-            )
+        public async Task<IActionResult> ExcluirTarefa(int id)
         {
-            var vTarefa = await ObjContext.objTbTarefas.FirstOrDefaultAsync(x => x.IdTarefa == id);
+            var pTarefa = await _tarefaRepositorio.SelecionarTarefas(id);
+            _tarefaRepositorio.ExcluirTarefa(pTarefa);
+            if (await _tarefaRepositorio.SaveAllAsync())
+            {
+                return Ok("Tarefa excluida com sucesso.");
+            }
 
-            try
-            {
-                ObjContext.objTbTarefas.Remove(vTarefa);
-                await ObjContext.SaveChangesAsync();
-                return Ok("v1/ListarTarefas");
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e);
-            }
+            return BadRequest("Ocorreu um erro ao tentar excluir a tarefa");
         }
     }
 }

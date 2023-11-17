@@ -4,7 +4,6 @@ namespace Tarefas.ViewModel
 {
     public class CriarNovaTarefa
     {
-        [Required]
-        public string DescricaoTarefa { get; set; }
+        public string Descricao { get; set; }
     }
 }

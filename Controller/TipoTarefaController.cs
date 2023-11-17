@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Tarefas.Data;
 using Tarefas.Models;
 using Tarefas.ViewModel;
+using Tarefas.Interface;
+using System.Collections.Generic;
 
 namespace Tarefas.Controller
 {
@@ -12,126 +14,94 @@ namespace Tarefas.Controller
     [Route(template: "v1")]
     public class TipoTarefaController : ControllerBase
     {
-        /// <summary>
-        /// Lista todas os tipos de tarefas existentes
-        /// </summary>
-        /// <returns>ToListAsync permite retorno dos dados em uma lista</returns>
-        [HttpGet]
-        [Route(template: "ListarTipos")]
-        public async Task<IActionResult> ListarTipos([FromServices] ClassDbContext ObjContext)
+        private readonly ITipo _tipoRepositorio;
+
+        public TipoTarefaController(ITipo tipoRepositorio)
         {
-            var mTipo = await ObjContext.objTbTipo.ToListAsync();
-            return Ok(mTipo);
+            _tipoRepositorio = tipoRepositorio;
         }
 
         /// <summary>
-        /// Selecionar Tipo pelo Id 
-        /// (chave primaria na tabela tipo)
+        /// Lista todos os Tipos de Tarefas
         /// </summary>
-        /// <param name="ObjContext">Objeto contexto para interação com a base de dados</param>
-        /// <param name="id">Id(identificação) exclusiva do tipo de tarefa</param>
         /// <returns></returns>
         [HttpGet]
-        [Route(template: "SelecionarTipoTarefa/{id}")]
-        public async Task<IActionResult> SelecionarTipo(
-            [FromServices] ClassDbContext ObjContext,
-            [FromRoute] int id)
+        [Route(template: "ListarTipos")]
+        public async Task<ActionResult<IEnumerable<MdTipo>>> ListarTipos()
         {
-            var mTipo = await ObjContext.objTbTipo.FirstOrDefaultAsync(x => x.IdTipo == id);
-            return mTipo == null ? NotFound() : Ok(mTipo);
+            return Ok(await _tipoRepositorio.ListarTipo());
         }
 
         /// <summary>
-        /// Criar novo tipo de tarefa
+        /// Exibe Tipo selecionado pelo Id - (chave primaria na tabela de Tipo)
         /// </summary>
-        /// <param name="ObjContext">Objeto contexto para interação com a base de dados</param>
-        /// <param name="ObjCriar">Objeto para definir a descrição do novo tipo de tarefa</param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(template: "SelecionarTipo/{id}")]
+        public async Task<IActionResult> SelecionarTipo(int id)
+        {
+            var pTipo = await _tipoRepositorio.SelecionarTipo(id);
+            if (pTipo == null)
+            {
+                return NotFound("Tipo não encontrado");
+            }
+            return Ok(pTipo);
+        }
+
+        /// <summary>
+        /// Permite criar um novo Tipo
+        /// </summary>
+        /// <param name="pTipo"></param>
         /// <returns></returns>
         [HttpPost]
         [Route(template: "CriarTipo")]
-        public async Task<IActionResult> CriarTipo(
-            [FromServices] ClassDbContext ObjContext,
-            [FromBody] vmTipo ObjCriar)
+        public async Task<IActionResult> CriarTipo(MdTipo pTipo)
         {
-            if (!ModelState.IsValid) { return BadRequest(); }   //Certifica-se que o campo Required é valido
-
-            MdTipo mTipo = new()
+            _tipoRepositorio.CadastrarTipo(pTipo);
+            if (await _tipoRepositorio.SaveAllAsync())
             {
-                TipoTarefa = ObjCriar.DescricaoTipo,
-            };
-
-            try
-            {
-                await ObjContext.objTbTipo.AddAsync(mTipo);
-                await ObjContext.SaveChangesAsync();
-                return Created("v1/ListarTipos", mTipo);
+                return Ok("Novo tipo criado com sucesso.");
             }
-            catch (Exception e)
-            {
-                return BadRequest(e);
-            }
+
+            return BadRequest("Ocorreu um erro ao salvar um novo tipo");
         }
 
         /// <summary>
-        /// Editar descrição do Tipo de tarefa
+        /// Permite editar a descrição do Tipo
         /// </summary>
-        /// <param name="ObjContext">Objeto contexto para interação com a base de dados</param>
-        /// <param name="objEditar">Permite modificar a descrição do tipo</param>
-        /// <param name="id">Identificação do Tipo que será modificada</param>
+        /// <param name="pTipo"></param>
         /// <returns></returns>
         [HttpPut]
         [Route(template: "EditarTipo/{id}")]
-        public async Task<IActionResult> EditarTipo(
-            [FromServices] ClassDbContext ObjContext,
-            [FromBody] vmTipo objEditar,
-            [FromRoute] int id
-            )
+        public async Task<IActionResult> EditarTipo(MdTipo pTipo)
         {
-            if (!ModelState.IsValid) { return BadRequest(); }
-
-            //Instancia da model para preenchimento de dados
-            MdTipo mTipo = await ObjContext.objTbTipo.FirstOrDefaultAsync(x => x.IdTipo == id);
-
-            try
+            _tipoRepositorio.EditarTipo(pTipo);
+            if (await _tipoRepositorio.SaveAllAsync())
             {
-                mTipo.TipoTarefa = objEditar.DescricaoTipo;
+                return Ok("Tipo alterado com sucesso.");
+            }
 
-                ObjContext.objTbTipo.Update(mTipo);
-                ObjContext.SaveChanges();
-                return Ok(mTipo);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e) ;
-            }
+            return BadRequest("Ocorreu um erro ao tentar alterar o tipo");
         }
 
         /// <summary>
-        /// Permite excluir Tipos de Tarefas existentes
+        /// Permite excluir Tipo existentes
         /// </summary>
-        /// <param name="ObjContext">Objeto contexto para interação com a base de dados</param>
-        /// <param name="id">Identificação do Tipo de tarefa que será excluida</param>
+        /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
         [Route(template: "ExcluirTipo/{id}")]
-        public async Task<IActionResult> ExcluirTipo(
-            [FromServices] ClassDbContext ObjContext,
-            [FromRoute] int id
-            )
+        public async Task<IActionResult> ExcluirTipo(int id)
         {
-            var mTipo = await ObjContext.objTbTipo.FirstOrDefaultAsync(x => x.IdTipo == id);
-
-            try
+            var pTipo = await _tipoRepositorio.SelecionarTipo(id);
+            _tipoRepositorio.ExcluirTipo(pTipo);
+            if (await _tipoRepositorio.SaveAllAsync())
             {
-                ObjContext.objTbTipo.Remove(mTipo);
-                await ObjContext.SaveChangesAsync();
-                return Ok("v1/ListarTipos");
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e);
+                return Ok("Tipo excluido com sucesso.");
             }
 
+            return BadRequest("Ocorreu um erro ao tentar excluir o tipo");
         }
     }
 }
